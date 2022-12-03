@@ -1,6 +1,6 @@
 from Preference import Preference
 class Person:
-    def __init__(self,id_person,fullname,username,age,gender,state,city,bio,lifestyle):
+    def __init__(self,id_person,fullname,username,age,gender,state,city,bio):
         self.id_person = id_person
         self.username = username
         self.fullname = fullname
@@ -9,7 +9,7 @@ class Person:
         self.bio = bio
         self.city = city
         self.state = state
-        self.lifestyle = lifestyle
+        self.lifestyle = []
         self.preferences = Preference()
         # self.sport = []
         # self.genremovies = []
@@ -18,6 +18,7 @@ class Person:
         # self.pets = []
         self.career = 0
         self.similarity = 0
+        self.avatar = None
 
 
 
