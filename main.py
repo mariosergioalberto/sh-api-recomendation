@@ -86,16 +86,16 @@ def recomendation(id):
 
     return json_data
 
-@app.route('/api/create/<id>',methods=['POST'])
-def createPerson(id):
+@app.route('/api/create',methods=['POST'])
+def createPerson():
     success = True
     message = "Person Created"
     error = None
     con0 = RecomendationApi()
-    existe = con0.exist_person(int(id))
+    data = request.get_json()
+    print(request.get_json().get('id'))
+    existe = con0.exist_person(request.get_json().get('id'))
     if(existe):
-        print("La persona existe")
-        print(existe)
         success = False
         message = "Failed Create  person."
         error = "Error Person exist with that id"
@@ -103,11 +103,9 @@ def createPerson(id):
         print("La persona no existe")
         request_data = request.get_json()
         con = RecomendationApi()
-        person = con.create_nodesPerso(int(id), request_data)
-        if (isinstance(person, Person)):
+        person = con.create_nodesPerso(request_data)
+        """ if (isinstance(person, Person)):
             try:
-                print("Id de persona recien agregada")
-                print(person.id_person)
                 resp1 = con.create_relationPerson(person)
                 con.close()
                 con2 = RecomendationApi()
@@ -120,11 +118,8 @@ def createPerson(id):
         else:
             success = False
             message = "Failed Create Person."
-            error = "Error to Create node person."
-        # json_out = json.dumps(person.__dict__)
-
-
-
+            error = "Error to Create node person." """
+  
     json_data = {
                 "data": [
                 ],
@@ -134,10 +129,41 @@ def createPerson(id):
             }
     #json_data['data'].append(json_out)
     json_dict = json.dumps(json_data)
+    return json_dict
 
+@app.route('/api/relations/<id>',methods=['POST'])
+def relationsPerson(id):
+    success = True
+    message = "Relations created..."
+    error = None
+    request_data = request.get_json()
+    try:
+        con = RecomendationApi()
+        resp = con.update_Person(int(id),request_data)
+        con.close()
+    except():
+        success = False
+        message = "Error to create relations"
+        error = None
+    try:
+        con2 = RecomendationApi()
+        resp2 = con2.create_projectGraph()
+        con2.close()
+    except():
+        success = True
+        message = "Error in create projection Data Science"
+        error = None
 
+    json_data = {
+        "data": [
+        ],
+        "success": success,
+        "message": message,
+        "error": error
+    }
 
-    return json_dict#,resp1,resp2
+    return json_data
+
 
 @app.route('/api/update/<id>',methods=['PUT'])
 def updatePerson(id):
@@ -203,7 +229,8 @@ class RecomendationApi:
             return error
 
     def print_get_peopleRecomendation(self, tx, id_person):
-        url = 'https://sh-hasura-api.herokuapp.com/v1/graphql/'
+        url = 'http://hasura:8080/v1/graphql'
+        #comentario de prueba
         id_person = int(id_person)
         print("Leega hasta la query de data science")
         query3 = """CALL gds.nodeSimilarity.stream('myGraph')
@@ -229,22 +256,20 @@ class RecomendationApi:
             person = Person(idpersonrec, fullname, username, age, gender, state, city, bio)
             person.similarity = similarity
             query = """query GetUserAvatar {
-            sh_users(where: {persons_id: {_eq: %i}}) {
+            sh_users(where: {persons_id: {_eq: "%i"}}) {
 		    avatar
                 }
             }
-            """%(id_person)
-            print(f"query = {query}")
-            r = requests.post(url, json={'query': query}, headers={'Content-Type': 'application/json', 'x-hasura-admin-secret': 'sh123hasura'}) ## esta clave leerla desde un archivo de entorno
-            json_data = r
-
-            print("RESPUESTA DE HEROKU")
-            print(json_data)
-            print(r.status_code)
-            #print(json_data['data']['sh_users'])  # agregar a cada obj persona de la respuesta su avatar
-            #personas.avatar = json_data['data']['sh_users']
+            """%(idpersonrec)
+            
+            r = requests.post(url, json={'query': query}, headers={'Content-Type': 'application/json',
+                                                                   'x-hasura-admin-secret': 'shhasura123'})  ## esta clave leerla desde un archivo de entorno
+            json_data = r.request.headers
+            
+            json_data = r.json()
+            person.avatar = json_data["data"]["sh_users"][0]["avatar"]
             personas.append(person)
-
+            print(r)
         #print(result_json)
         return personas
     def get_sports(self,id_person):
@@ -392,8 +417,8 @@ class RecomendationApi:
         return person
 
 
-    def create_nodesPerso(self,id,data_json):
-        id_person = id
+    def create_nodesPerso(self,data_json):
+        id_person = data_json['id']
         fullname = data_json['fullname']
         username = data_json['username']
         age = data_json['age']
@@ -402,18 +427,18 @@ class RecomendationApi:
         city = data_json['city']
         bio = data_json['bio']
         career = data_json['career']
-        lifestyles = data_json['lifestyles']
+        #lifestyles = data_json['lifestyles']
         person = Person(id_person,fullname,username,age,gender,state,city,bio)
-        pref_request = data_json['preferences']
-        preference = Preference()
-        preference.sport = pref_request['sports']
-        preference.genremovies = pref_request['genremovies']
-        preference.genremusic = pref_request['genremusic']
-        preference.hobbies = pref_request['hobbies']
-        preference.pets = pref_request['pets']
-        person.preferences = preference
-        person.lifestyle = lifestyles
-        person.career = career
+        #pref_request = data_json['preferences']
+        #preference = Preference()
+        #preference.sport = pref_request['sports']
+        #preference.genremovies = pref_request['genremovies']
+        #preference.genremusic = pref_request['genremusic']
+        #preference.hobbies = pref_request['hobbies']
+        #preference.pets = pref_request['pets']
+        #person.preferences = preference
+        #person.lifestyle = lifestyles
+        #person.career = career
         error = ""
 
         try:

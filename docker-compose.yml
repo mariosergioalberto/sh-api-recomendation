@@ -1,7 +1,6 @@
 version: '3.7'
 
-services:
-  
+services: 
   flaskapp:
     container_name: flaskapp
     build: .
@@ -10,7 +9,8 @@ services:
     ports:
       - 5001:5000
     networks:
-      - flasknetwork
+      - sh-network
+
  
   neo4j:
     container_name: 'neo4j'
@@ -26,8 +26,8 @@ services:
     volumes: 
       - ./neo4j-data:/data
     networks:
-      - flasknetwork
+      - sh-network
 
 networks:
-  flasknetwork:
-    driver: bridge
+  sh-network:
+    external: true
