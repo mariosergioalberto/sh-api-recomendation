@@ -254,7 +254,7 @@ class RecomendationApi:
             bio = record['bio']
             similarity = record['similarity']
             person = Person(idpersonrec, fullname, username, age, gender, state, city, bio)
-            person.similarity = similarity
+            person.similarity = round(similarity,2)
             query = """query GetUserAvatar {
             sh_users(where: {persons_id: {_eq: "%i"}}) {
 		    avatar
