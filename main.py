@@ -195,7 +195,7 @@ def updatePerson(id):
     }
 
     return json_data
-
+#estas credenciales usa
 class RecomendationApi:
     def __init__(self):
         uri = "bolt://neo4j:7687"
