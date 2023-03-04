@@ -37,8 +37,6 @@ def recomendation(id):
         preferences = con2.get_sports(person.id_person)
         print(person.id_person)
         prefe = Preference()
-        # lifestyle = LifeStyle(1,1,1,1,1,1)
-        # person.lifestyle = lifestyle
         for preference in preferences:
             if(preference['tipo'] == 'state'):
                 person.state = preference['idNode']
@@ -202,7 +200,7 @@ class RecomendationApi:
     def __init__(self):
         uri = "bolt://neo4j:7687"
         user = "neo4j"
-        password = "1234"
+        password = "sh-1234"
         self.driver = GraphDatabase.driver(uri,auth=(user, password))
 
     def close(self):
@@ -230,7 +228,7 @@ class RecomendationApi:
 
     def print_get_peopleRecomendation(self, tx, id_person):
         url = 'http://hasura:8080/v1/graphql'
-        #comentario de prueba
+        
         id_person = int(id_person)
         print("Leega hasta la query de data science")
         query3 = """CALL gds.nodeSimilarity.stream('myGraph')
@@ -239,8 +237,7 @@ class RecomendationApi:
                     RETURN  gds.util.asNode(node2).id AS idPerson,gds.util.asNode(node2).name AS fullname,
                     gds.util.asNode(node2).username AS username,gds.util.asNode(node2).age AS age,gds.util.asNode(node2).gender AS gender, gds.util.asNode(node2).bio AS bio, similarity
                     ORDER BY similarity DESCENDING, idPerson LIMIT 3"""%(id_person)
-        result = tx.run(query3)
-        #result_json = json.dumps([r.data() for r in result])
+        result = tx.run(query3)       
         personas = []
         for record in result:
             
@@ -284,14 +281,6 @@ class RecomendationApi:
         except():
             error = "Error al realizar la busqueda de recomendaciones"
             return error
-        
-    # def runtx_get_sports(self,tx):
-    #     preferences = []
-    #     querygetsports = """MATCH (p:person {id:$id_person})-->(n) RETURN labels(n)[0] as tipo, n.id as idNode, n.name as name"""
-    #     result = tx.run(querygetsports, id_person=1)
-    #     for record in result:
-    #         preferences.append(record.data())
-    #     return preferences
 
     def create_projectGraph(self):
         test = "ok"
@@ -324,7 +313,6 @@ class RecomendationApi:
         return test
 
     def update_Person(self,id_person,data_json):
-        #pulcro,visitas,salidas,estudiar,fumador,mascotas
         lifestyle = data_json['lifestyles']
         preferences = data_json['preferences']
         with self.driver.session() as session:
@@ -427,18 +415,7 @@ class RecomendationApi:
         city = data_json['city']
         bio = data_json['bio']
         career = data_json['career']
-        #lifestyles = data_json['lifestyles']
         person = Person(id_person,fullname,username,age,gender,state,city,bio)
-        #pref_request = data_json['preferences']
-        #preference = Preference()
-        #preference.sport = pref_request['sports']
-        #preference.genremovies = pref_request['genremovies']
-        #preference.genremusic = pref_request['genremusic']
-        #preference.hobbies = pref_request['hobbies']
-        #preference.pets = pref_request['pets']
-        #person.preferences = preference
-        #person.lifestyle = lifestyles
-        #person.career = career
         error = ""
 
         try:
@@ -461,7 +438,6 @@ class RecomendationApi:
         except():
             print("Ha ocurrido un error al crear el nodo persona...")
         result_json = json.dumps([r.data() for r in result])
-        # print (result_json)
         return result_json
 
     def create_relationPerson(self,person):
@@ -482,14 +458,6 @@ class RecomendationApi:
         result = tx.run(querycareer, id_person=person.id_person,id_career=person.career)
         print("PERSON --------------------------")
         print(person.lifestyle)
-
-        #
-        # queryconvivencia = "MATCH (p:person {id: %i}), (pulcro:convivencia {id:1}),(visita:convivencia {id:2}),(estudia:convivencia {id:3}),(salir:convivencia {id:4}),(fumador:convivencia {id:5}),(mascotas:convivencia {id:6}) " \
-        #               "CREATE (p)-[:PREFERENCES {weight:%s}]->(pulcro) " \
-        #               "CREATE (p)-[:PREFERENCES {weight:%s}]->(visita) " \
-        #               "CREATE (p)-[:PREFERENCES {weight:%s}]->(salir) " \
-        #               "CREATE (p)-[:PREFERENCES {weight:%s}]->(estudiar) " \
-        #               "CREATE (p)-[:PREFERENCES {weight:%s}]->(mascotas) " % (person.id_person, person.lifestyle[0], person.lifestyle[1], person.lifestyle[3], person.lifestyle[2], person.lifestyle[4])
         querypulcro = "MATCH (p:person {id: $id_person}), (pulcro:convivencia {id:1}),(visita:convivencia {id:2}),(estudia:convivencia {id:3}),(salir:convivencia {id:4}),(fumar:convivencia {id:5}),(mascotas:convivencia {id:6}) " \
                       "CREATE (p)-[:PREFERENCES {weight:%s}]->(pulcro) " \
                       "CREATE (p)-[:PREFERENCES {weight:%s}]->(visita) " \
@@ -514,28 +482,28 @@ class RecomendationApi:
                     "CREATE (p)-[:PREFERENCES {weight:1}]->(pet)"
 
             result = tx.run(query, id_person=person.id_person, pet=pet)
-            #result_json = json.dumps([r.data() for r in result])
+            
 
         for movie in person.preferences.genremovies:
             query = "MATCH (p:person {id: $id_person}) MATCH (movie:genremovies {id: $movie}) " \
                     "CREATE (p)-[:PREFERENCES {weight:1}]->(movie)"
             print(query)
             result = tx.run(query, id_person=person.id_person, movie=movie)
-            #result_json = json.dumps([r.data() for r in result])
+            
 
         for music in person.preferences.genremusic:
             query = "MATCH (p:person {id: $id_person}) MATCH (music:genremusic {id: $music}) " \
                     "CREATE (p)-[:PREFERENCES {weight:1}]->(music)"
 
             result = tx.run(query, id_person=person.id_person, music=music)
-            #result_json = json.dumps([r.data() for r in result])
+            
 
         for hobby in person.preferences.hobbies:
             query = "MATCH (p:person {id: $id_person}) MATCH (hob:hobby {id: $hobby}) " \
                     "CREATE (p)-[:PREFERENCES {weight:1}]->(hob)"
 
             result = tx.run(query, id_person=person.id_person, hobby=hobby)
-            #result_json = json.dumps([r.data() for r in result])
+            
 
         result_json = "OK"
         return result_json
@@ -543,10 +511,5 @@ class RecomendationApi:
 
 
 if __name__ == "__main__":
-    #con = RecomendationApi("bolt://localhost:7687","neo4j","123456")
-    #greeter.print_greeting("Hola Mundo")
-    #con._get_nodes()
     app.run(host="0.0.0.0", port=5000,debug=True)
-    #con.friends_recomendation("Sergio")
-    #con.create_nodesPerso()
-    #con.close()
+    
