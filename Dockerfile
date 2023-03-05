@@ -9,5 +9,6 @@ COPY . /app
 
 RUN pip3 --no-cache-dir install -r requirements.txt
 RUN pip3 install requests
+RUN pip3 install python-dotenv
 
 CMD ["python3","main.py"]

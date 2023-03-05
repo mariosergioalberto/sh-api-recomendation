@@ -8,7 +8,7 @@ from Preference import Preference
 from LifeStyle import LifeStyle
 from State import State
 import requests
-
+import os
 
 app = Flask(__name__)
 @app.route('/',methods=['GET'])
@@ -199,8 +199,8 @@ def updatePerson(id):
 class RecomendationApi:
     def __init__(self):
         uri = "bolt://neo4j:7687"
-        user = "neo4j"
-        password = "sh-1234"
+        user = os.getenv('NEO4J_USER')
+        password = os.getenv('NEO4J_PASS')
         self.driver = GraphDatabase.driver(uri,auth=(user, password))
 
     def close(self):
