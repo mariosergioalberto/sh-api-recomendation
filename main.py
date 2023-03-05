@@ -198,6 +198,7 @@ def updatePerson(id):
 #estas credenciales usa
 class RecomendationApi:
     def __init__(self):
+        #.env file
         uri = "bolt://neo4j:7687"
         user = os.getenv('NEO4J_USER')
         password = os.getenv('NEO4J_PASS')
