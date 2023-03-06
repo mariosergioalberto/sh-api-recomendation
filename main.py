@@ -9,8 +9,10 @@ from LifeStyle import LifeStyle
 from State import State
 import requests
 import os
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 @app.route('/',methods=['GET'])
 def index():
     """ con = RecomendationApi()
@@ -18,7 +20,7 @@ def index():
     con.close() """
     jsonodes = "TEST OK"
     print("test ok get ")
-    return jsonodes
+    return "Hello, cross-origin-world!"
 
 
 @app.route('/api/recomendation/<id>',methods=['GET'])
