@@ -1,6 +1,6 @@
 version: '3.7'
 
-services: 
+services:
   flaskapp:
     container_name: flaskapp
     build: .
@@ -10,8 +10,9 @@ services:
       - 5001:5000
     networks:
       - sh-network
+    depends_on:
+      - neo4j
 
- 
   neo4j:
     container_name: 'neo4j'
     image: neo4j:4.4.15-enterprise
@@ -19,14 +20,15 @@ services:
       - NEO4J_AUTH=neo4j/sh-1234
       - NEO4JLABS_PLUGINS=["graph-data-science"]
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
-      #- EXTENSION_SCRIPT=/neo4j-data/neo4j-init.sh
+      - EXTENSION_SCRIPT= /entrypoint.sh
     ports:
       - "7474:7474"
       - "7687:7687"
-    volumes: 
+    volumes:
       - ./neo4j-data:/data
     networks:
       - sh-network
+  
 
 networks:
   sh-network:

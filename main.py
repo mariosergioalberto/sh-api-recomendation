@@ -13,14 +13,26 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+@app.before_first_request
+def inicializar_app():
+    createInitialProjection()
+
+def createInitialProjection():
+    # Coloca aquí el código que deseas ejecutar al iniciar la aplicación
+    try:
+        con2 = RecomendationApi()
+        resp2 = con2.create_projectGraph()
+        con2.close()
+    except():
+        success = True
+        message = "Error in create projection Data Science"
+        error = None
+
 @app.route('/',methods=['GET'])
 def index():
-    """ con = RecomendationApi()
-    jsonodes = con._get_allNodes()
-    con.close() """
-    jsonodes = "TEST OK"
-    print("test ok get ")
-    return "Hello, cross-origin-world!"
+    
+    return "HOLA"
 
 
 @app.route('/api/recomendation/<id>',methods=['GET'])
@@ -129,7 +141,8 @@ def createPerson():
             }
     #json_data['data'].append(json_out)
     json_dict = json.dumps(json_data)
-    return json_dict
+    return json_data
+
 
 @app.route('/api/relations/<id>',methods=['POST'])
 def relationsPerson(id):
@@ -137,6 +150,7 @@ def relationsPerson(id):
     message = "Relations created..."
     error = None
     request_data = request.get_json()
+    print(request_data)
     try:
         con = RecomendationApi()
         resp = con.update_Person(int(id),request_data)
